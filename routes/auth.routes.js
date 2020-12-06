@@ -2,11 +2,12 @@ const { Router } = require("express");
 const router = Router();
 const passport = require("passport");
 const bcrypt = require("bcrypt");
+const fileUploader = require("../configs/cloudinary.config");
 
 const User = require("../models/user.model");
 
-router.post("/signup", (req, res) => {
-  const { username, password } = req.body;
+router.post("/signup", fileUploader.single("imageUrl"), (req, res) => {
+  const { username, password, email } = req.body;
 
   if (!username || !password) {
     res.status(400).json({ message: "Provide username and password" });
@@ -44,6 +45,8 @@ router.post("/signup", (req, res) => {
     const aNewUser = new User({
       username: username,
       password: hashPass,
+      email: email,
+      image: req.file.path
     });
 
     // Attempt to save the new user to the database
@@ -52,7 +55,7 @@ router.post("/signup", (req, res) => {
       if (err) {
         res
           .status(400)
-          .json({ message: "Saving user to database went wrong." });
+          .json({ message: err });
         return;
       }
 
@@ -81,7 +84,7 @@ router.post("/login", (req, res, next) => {
         .json({ message: "Something went wrong authenticating user" });
       return;
     }
-
+    
     if (!theUser) {
       // "failureDetails" contains the error messages
       // from our logic in "LocalStrategy" { message: '...' }.
@@ -91,6 +94,7 @@ router.post("/login", (req, res, next) => {
 
     // save user in session
     req.login(theUser, (err) => {
+      console.log(req.session)
       if (err) {
         res.status(500).json({ message: "Session save went bad." });
         return;
@@ -118,5 +122,13 @@ router.get("/loggedin", (req, res) => {
   }
   res.status(403).json({ message: "Unauthorized" });
 });
+
+/* POST - upload images   */
+router.post("/upload", fileUploader.single("imageUrl"), (req, res, next) => {
+  res.status(200).json({ cloudinaryUrl: req.file.path });
+});
+
+module.exports = router;
+
 
 module.exports = router;
