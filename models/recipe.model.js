@@ -2,14 +2,16 @@ const { Schema, model } = require("mongoose");
 
 const recipeSchema = new Schema(
   {
-    name: {type: String, required: true},
+    title: {type: String, required: true},
+    image: {type: String, required: true},
     description: {type: String, required: true},
-    preparationTime: {type: Number, required: true},
-    conservation: {Type: Array},
+    preparationtime: {type: Number, required: true},
+    conservationtimes: {type: Array},
     ingredients: {type: Array, required: true},
     steps: {type: Array, required: true},
+    tags: {type: Array},
     author: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    comments: [{type: Schema.Types.ObjectId, ref: 'Comment', required: true}]
+    comments: [{type: Schema.Types.ObjectId, ref: 'Comment', required: false}]
   },
   {
     timestamps: true,

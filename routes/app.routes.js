@@ -1,20 +1,29 @@
 const { Router } = require("express");
 const router = Router();
 const Recipe = require("../models/recipe.model");
-const Comment = require("../models/comment.model");
+const Comment = require("../models/comments.model");
 
 
 router.get("/recipe", (req, res) => {
   const {recipeID} = req.body;
   Recipe.findById(recipeID)
   .then(() => res.status(200).send(recipeID))
-  .catch(() => res.status(500).send("Error while retrieving the recipe in the database"))
+  .catch(() => res.status(500).json({message: "Error while retrieving the recipe from the database"}))
+})
+
+router.get("/recipes", (req, res) => {
+  Recipe.find({})
+  .then((data) => res.status(200).json(data))
+  .catch(() => res.status(500).json({message: "Error while retrieving the recipes from the database"}))
 })
 
 router.post("/recipe/add", (req, res) => {
-  const {name, description, ingredients, steps } = req.body;
-  Recipe.create({name, description, ingredients, steps})
-  .catch(err => res.status(500).send("Error while adding new recipe in the database"));
+  const data = req.body;
+  data.author = req.user._id;
+  console.log(data);
+  Recipe.create({...data})
+  .then(() => res.status(200).json({message: "everythings good"}))
+  .catch(err => res.status(500).json({message: err}));
 })
 
 router.post("/recipe/delete", (req, res) => {
@@ -43,3 +52,5 @@ router.post("/recipe/comment/modify", (req, res) => {
   const {recipeID, userID, commentID, modifiedComment} = req.body;
   
 })
+
+module.exports = router;

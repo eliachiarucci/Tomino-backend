@@ -75,6 +75,7 @@ app.locals.title = "Express - Generated with IronGenerator";
 // Routes Middleware
 app.use("/", require("./routes/index"));
 app.use("/", require("./routes/auth.routes"));
+app.use("/", require("./routes/app.routes"));
 
 // Setting up environments
 /*if (process.env.NODE_ENV === "production") {
