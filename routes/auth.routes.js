@@ -7,31 +7,36 @@ const fileUploader = require("../configs/cloudinary.config");
 const User = require("../models/user.model");
 
 router.post("/signup", fileUploader.single("imageUrl"), (req, res) => {
-  const { username, password, email } = req.body;
-
-  if (!username || !password) {
-    res.status(400).json({ message: "Provide username and password" });
+  let { username, email, password, image } = req.body;
+  username = username.toLowerCase();
+  email = email.toLowerCase();
+  console.log(username, email, password, image);
+  if (!username || !password || !email || !image) {
+    console.log("ERROR FIELDS")
+    res.status(400).json({ message: "Provide all the fields" });
     return;
   }
 
   if (password.length < 7) {
+    console.log("ERROR PASSWORD")
     res.status(400).json({
       message:
         "Please make your password at least 8 characters long for security purposes.",
     });
     return;
   }
-
-  User.findOne({ username }, (err, foundUser) => {
+  User.findOne({ username, email }, (err, foundUser) => {
     // In case of any server errors that may occur
     if (err) {
-      res.status(500).json({ message: "Username check went bad." });
+      console.log("ERROR DB")
+      res.status(500).json({ message: "User check went bad." });
       return;
     }
 
     // If the username already exists
     if (foundUser) {
-      res.status(400).json({ message: "Username taken. Choose another one." });
+      console.log("ERROR ALREADY USER")
+      res.status(400).json({ message: "Username or email already taken. Choose another ones." });
       return;
     }
 
@@ -46,22 +51,24 @@ router.post("/signup", fileUploader.single("imageUrl"), (req, res) => {
       username: username,
       password: hashPass,
       email: email,
-      image: req.file.path
+      image: image
     });
 
     // Attempt to save the new user to the database
     aNewUser.save((err) => {
       // When/If any issues arise while saving the user to the database
       if (err) {
+        console.log("ERROR SAVE")
         res
           .status(400)
           .json({ message: err });
         return;
       }
+      res.status(200).json(aNewUser);
 
       // Automatically log in user after sign up
       // .login() here is actually predefined passport method
-      req.login(aNewUser, (err) => {
+      /* req.login(aNewUser, (err) => {
         if (err) {
           res.status(500).json({ message: "Login after signup went bad." });
           return;
@@ -70,14 +77,17 @@ router.post("/signup", fileUploader.single("imageUrl"), (req, res) => {
         // Send the user's information to the frontend
         // We can use also: res.status(200).json(req.user);
         res.status(200).json(aNewUser);
-      });
+      }); */
+
     });
   });
 });
 
 /* LOGIN ROUTE */
 router.post("/login", (req, res, next) => {
+  
   passport.authenticate("local", (err, theUser, failureDetails) => {
+    console.log(err);
     if (err) {
       res
         .status(500)
@@ -124,11 +134,8 @@ router.get("/loggedin", (req, res) => {
 });
 
 /* POST - upload images   */
-router.post("/upload", fileUploader.single("imageUrl"), (req, res, next) => {
+router.post("/upload", fileUploader.single("image"), (req, res, next) => {
   res.status(200).json({ cloudinaryUrl: req.file.path });
 });
-
-module.exports = router;
-
 
 module.exports = router;
