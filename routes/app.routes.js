@@ -4,15 +4,16 @@ const Recipe = require("../models/recipe.model");
 const Comment = require("../models/comments.model");
 
 
-router.get("/recipe", (req, res) => {
-  const {recipeID} = req.body;
+router.get("/recipe/:recipeID", (req, res) => {
+  const {recipeID} = req.params;
   Recipe.findById(recipeID)
-  .then(() => res.status(200).send(recipeID))
+  .then((data) => res.status(200).json(data))
   .catch(() => res.status(500).json({message: "Error while retrieving the recipe from the database"}))
 })
 
 router.get("/recipes", (req, res) => {
   Recipe.find({})
+  .populate("author")
   .then((data) => res.status(200).json(data))
   .catch(() => res.status(500).json({message: "Error while retrieving the recipes from the database"}))
 })
