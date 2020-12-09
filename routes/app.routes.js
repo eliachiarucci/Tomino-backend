@@ -18,11 +18,37 @@ router.get("/recipes", (req, res) => {
   .catch(() => res.status(500).json({message: "Error while retrieving the recipes from the database"}))
 })
 
+router.get("/myrecipes", (req, res) => {
+  Recipe.find({author : req.user._id})
+  .then((data) => res.json(data))
+  .catch(() => res.status(500).json({message: "Error while retrievieng your recipes from the database"}))
+})
+
 router.post("/recipe/add", (req, res) => {
   const data = req.body;
   data.author = req.user._id;
   console.log(data);
   Recipe.create({...data})
+  .then(() => res.status(200).json({message: "everythings good"}))
+  .catch(err => res.status(500).json({message: err}));
+})
+
+router.post("/recipe/delete", (req, res) => {
+  console.log(req.body)
+  const {recipeID} = req.body;
+  Recipe.findByIdAndDelete(recipeID)
+  .then(() => res.status(200).json({message: "everythings good"}))
+  .catch(err => res.status(500).json({message: err}));
+})
+
+router.post("/recipe/modify/", (req, res) => {
+  const data = req.body;
+  const {recipeID} = data;
+  console.log(data, recipeID, req.user._id)
+  /*if (data.author !== req.user._id) {res.status(500).json({message: "Error, it seems that you are not the author of this recipe, you can't modify or delete it"})
+return;};*/
+  console.log(data);
+  Recipe.findByIdAndUpdate(recipeID, {...data})
   .then(() => res.status(200).json({message: "everythings good"}))
   .catch(err => res.status(500).json({message: err}));
 })
