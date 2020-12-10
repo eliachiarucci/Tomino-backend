@@ -3,7 +3,6 @@ const router = Router();
 const Recipe = require("../models/recipe.model");
 const Comment = require("../models/comments.model");
 
-
 router.get("/recipe/:recipeID", (req, res) => {
   const {recipeID} = req.params;
   Recipe.findById(recipeID)
@@ -73,11 +72,6 @@ router.post("/recipe/comment/add", (req, res) => {
   Comment.create({comment, author: userID})
   .then(() => res.status(200).send("Comment added succesfully"))
   .catch((err) => res.status(500).send("Error while adding new comment"))
-})
-
-router.post("/recipe/comment/modify", (req, res) => {
-  const {recipeID, userID, commentID, modifiedComment} = req.body;
-  
 })
 
 module.exports = router;

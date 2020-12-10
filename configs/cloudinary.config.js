@@ -13,7 +13,7 @@ const storage = new CloudinaryStorage({
   params: {
     folder: "mrpan", // The name of the folder in cloudinary.
     allowedFormats: ["jpg", "jpeg", "png"], // The allowed formats of files to upload to cloudinary.
-    use_filename: true, // Give the file a name to refer to when uploading to cloudinary.
+    unique_filename: true, // Give the file a name to refer to when uploading to cloudinary.
   },
 });
 

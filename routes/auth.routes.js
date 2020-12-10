@@ -3,6 +3,7 @@ const router = Router();
 const passport = require("passport");
 const bcrypt = require("bcrypt");
 const fileUploader = require("../configs/cloudinary.config");
+const tsUploader = require("../configs/cloudinaryTS.config");
 
 const User = require("../models/user.model");
 
@@ -137,5 +138,37 @@ router.get("/loggedin", (req, res) => {
 router.post("/upload", fileUploader.single("image"), (req, res, next) => {
   res.status(200).json({ cloudinaryUrl: req.file.path });
 });
+
+const uploadTSFiles = (req,res,next) => {
+  const tsUpload = tsUploader("aa");
+  console.log("TS UPLOAD", tsUpload)
+  console.log("FILE UPLOADER", fileUploader)
+  tsUpload.fields([{name: "model.json", maxCount: 1}, {name:"model.weights.bin", maxCount: 1}])
+  .then(() => next());
+}
+
+router.post("/tsmodel/upload", (req, res) => {
+  tsUploader(req.user._id)(req, res, function(err) {
+    console.log(req.files);
+    if (err) {
+      console.log(err);
+    }
+    if (req.isAuthenticated()) {
+      console.log(req.user._id);
+    }
+    //console.log(req.files["model.json"][0].path);
+    User.findByIdAndUpdate({_id: req.user._id}, {tensorjson: req.files["model.json"][0].path, tensorbin: req.files["model.weights.bin"][0].path})
+    .then((data) => res.status(200).json({message: "everything went well"}))
+    .catch(err => console.log(err))
+  })
+  /* console.log(req.files["model.json"]);
+  console.log(req.files["model.weights.bin"]);
+  //console.log(req);
+  console.log(req.session);
+  console.log(req.user); */
+
+})
+
+
 
 module.exports = router;
