@@ -20,6 +20,7 @@ router.get("/recipes", (req, res) => {
 
 router.get("/myrecipes", (req, res) => {
   Recipe.find({author : req.user._id})
+  .populate("author")
   .then((data) => res.json(data))
   .catch(() => res.status(500).json({message: "Error while retrievieng your recipes from the database"}))
 })
