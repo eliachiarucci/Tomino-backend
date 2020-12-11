@@ -54,9 +54,8 @@ router.post("/signup", fileUploader.single("imageUrl"), (req, res) => {
       image: image
     });
 
-    // Attempt to save the new user to the database
+    
     aNewUser.save((err) => {
-      // When/If any issues arise while saving the user to the database
       if (err) {
         console.log("ERROR SAVE")
         res
@@ -65,19 +64,6 @@ router.post("/signup", fileUploader.single("imageUrl"), (req, res) => {
         return;
       }
       res.status(200).json(aNewUser);
-
-      // Automatically log in user after sign up
-      // .login() here is actually predefined passport method
-      /* req.login(aNewUser, (err) => {
-        if (err) {
-          res.status(500).json({ message: "Login after signup went bad." });
-          return;
-        }
-
-        // Send the user's information to the frontend
-        // We can use also: res.status(200).json(req.user);
-        res.status(200).json(aNewUser);
-      }); */
 
     });
   });
@@ -96,8 +82,6 @@ router.post("/login", (req, res, next) => {
     }
     
     if (!theUser) {
-      // "failureDetails" contains the error messages
-      // from our logic in "LocalStrategy" { message: '...' }.
       res.status(401).json(failureDetails);
       return;
     }
@@ -110,7 +94,6 @@ router.post("/login", (req, res, next) => {
         return;
       }
 
-      // We are now logged in (that's why we can also send req.user)
       res.status(200).json(theUser);
     });
   })(req, res, next);
@@ -118,14 +101,12 @@ router.post("/login", (req, res, next) => {
 
 /* LOGOUT ROUTE */
 router.post("/logout", (req, res) => {
-  // req.logout() is defined by passport
   req.logout();
   res.status(200).json({ message: "Log out success!" });
 });
 
 /* LOGGEDIN */
 router.get("/loggedin", (req, res) => {
-  // req.isAuthenticated() is defined by passport
   if (req.isAuthenticated()) {
     res.status(200).json(req.user);
     return;
